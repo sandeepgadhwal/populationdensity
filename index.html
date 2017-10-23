@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no"/>
+    <title>Dot density renderer</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/3.21/esri/css/esri.css">
+    <style>
+      html, body, #map {
+        height: 100%;
+        margin: 0;
+      }
+      #info {
+        position: absolute;
+        right: 0;
+        top: 0;
+        padding: 1em 1em 0 1em;
+        background: #fff;
+        font: 14px sans-serif;
+        width: 200px;
+        text-align: center;
+        border-radius: 0 0 0 10px;
+      }
+    </style>
+    <script src="https://js.arcgis.com/3.21/"></script>
+    <script>
+      var map;
+      require([
+	    "esri/arcgis/utils",
+		"esri/dijit/LayerList",
+        "esri/map", "esri/geometry/Extent", 
+        "esri/layers/ArcGISTiledMapServiceLayer", "esri/layers/FeatureLayer", 
+        "esri/InfoTemplate", "esri/renderers/DotDensityRenderer", 
+        "esri/renderers/ScaleDependentRenderer", "esri/dijit/Legend",
+        "esri/Color", "dojo/_base/array", "dojo/dom", "dojo/domReady!"
+      ], function(
+		arcgisUtils, LayerList,
+        Map, Extent, 
+        ArcGISTiledMapServiceLayer, FeatureLayer, 
+        InfoTemplate, DotDensityRenderer, 
+        ScaleDependentRenderer, Legend, 
+        Color, array, dom
+      ) {
+        map = new Map("map", {
+          //extent: new Extent({"xmin":-2460944,"ymin":-1389910,"xmax":2297115,"ymax":1643787,"spatialReference":{"wkid":102003}}),
+          maxScale: 18001,
+          minScale: 40000000,
+		  center: [-100.0, 40.0],
+			zoom: 5,
+			sliderStyle: "small"
+        });
+        
+        var basemap = new ArcGISTiledMapServiceLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/");
+        map.addLayer(basemap);
+        
+        var actuallayer = new FeatureLayer("https://services8.arcgis.com/YaIl4wfm4XSCYNC1/arcgis/rest/services/US_BLock_Group_for_arcgis_online/FeatureServer/0", {
+		  visible: true,
+          outFields: ["hi_gw_2015", "nm_gw_2015", "Dcl_2015", "County", "State", "Tract", "Blockgrp", "totpop2015"],
+		  name: "Actual Population Growth",
+          //infoTemplate: new InfoTemplate("${County}, ${State}", "Total Population in 2015: ${totpop2015:NumberFormat}")
+        });
+        
+        // update the alias for the field being mapped so it 
+        // displays nicely in the legend
+        actuallayer.on("load", function(e) {
+		//console.log(e);
+		e.layer.minScale = 400000000;
+		e.layer.maxcale = 18001;
+		e.layer.name = "Actual Population Growth";
+          array.forEach(e.layer.fields, function(field) {
+            if ( field.alias === "hi_gw_2015" ) {
+              field.alias = "High Actual Growth";
+            }
+            if ( field.alias === "nm_gw_2015" ) {
+              field.alias = "Normal Actual Growth";
+            } 
+			if ( field.alias === "Dcl_2015" ) {
+              field.alias = "Actual Decline";
+            }
+          });
+        });
+        
+        var renderer = new ScaleDependentRenderer({
+          rendererInfos: [{
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2015",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2015",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2015",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 800,
+              dotSize: 1.25
+            }),
+          maxScale: 20000001,
+          minScale: 40000000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2015",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2015",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2015",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 600,
+              dotSize: 1.25
+            }),
+          maxScale: 10000001,
+          minScale: 20000000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2015",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2015",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2015",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 500,
+              dotSize: 1.25
+            }),
+          maxScale: 5000001,
+          minScale: 10000000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2015",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2015",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2015",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 475,
+              dotSize: 1.25
+            }),
+          maxScale: 3000001,
+          minScale: 5000000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2015",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2015",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2015",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 350,
+              dotSize: 1.25
+            }),
+          maxScale: 2000001,
+          minScale: 3000000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2015",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2015",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2015",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 3100,
+              dotSize: 2
+            }),
+          maxScale: 600001,
+          minScale: 2000000
+        }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2015",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2015",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2015",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 275,
+              dotSize: 2.5
+            }),
+          maxScale: 300001,
+          minScale: 600000
+        }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2015",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2015",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2015",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 200,
+              dotSize: 2.5
+            }),
+          maxScale: 250001,
+          minScale: 300000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2015",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2015",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2015",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 150,
+              dotSize: 3.5
+            }),
+          maxScale: 100001,
+          minScale: 250000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2015",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2015",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2015",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 75,
+              dotSize: 3.5
+            }),
+          maxScale: 50001,
+          minScale: 100000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2015",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2015",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2015",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 50,
+              dotSize: 4
+            }),
+          maxScale: 30001,
+          minScale: 50000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2015",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2015",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2015",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 30,
+              dotSize: 4
+            }),
+          maxScale: 18001,
+          minScale: 30000
+          }]
+        });
+
+        actuallayer.setRenderer(renderer);
+		
+        var projlayer = new FeatureLayer("https://services8.arcgis.com/YaIl4wfm4XSCYNC1/arcgis/rest/services/US_BLock_Group_for_arcgis_online/FeatureServer/0", {
+		  visible: false,
+          outFields: ["hi_gw_2020", "nm_gw_2020", "Dcl_2020"],
+		  name: "Projected Population Growth"
+          //infoTemplate: new InfoTemplate("${COUNTY}, ${STATE}", "Corn Planted: ${M163_07:NumberFormat} Acres")
+        });
+		// update the alias for the field being mapped so it 
+        // displays nicely in the legend
+        projlayer.on("load", function(e) {
+		e.layer.name = "Projected Population Growth";
+          array.forEach(e.layer.fields, function(field) {
+			e.layer.minScale = 400000000;
+			e.layer.maxcale = 18001;
+            if ( field.alias === "hi_gw_2020" ) {
+              field.alias = "High Actual Growth";
+            }
+            if ( field.alias === "nm_gw_2020" ) {
+              field.alias = "Normal Actual Growth";
+            } 
+			if ( field.alias === "Dcl_2020" ) {
+              field.alias = "Actual Decline";
+            }
+          });
+        });
+		
+        var projrenderer = new ScaleDependentRenderer({
+          rendererInfos: [{
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2020",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2020",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2020",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 800,
+              dotSize: 1.25
+            }),
+          maxScale: 20000001,
+          minScale: 40000000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2020",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2020",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2020",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 600,
+              dotSize: 1.25
+            }),
+          maxScale: 10000001,
+          minScale: 20000000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2020",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2020",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2020",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 500,
+              dotSize: 1.25
+            }),
+          maxScale: 5000001,
+          minScale: 10000000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2020",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2020",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2020",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 475,
+              dotSize: 1.25
+            }),
+          maxScale: 3000001,
+          minScale: 5000000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2020",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2020",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2020",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 350,
+              dotSize: 1.25
+            }),
+          maxScale: 2000001,
+          minScale: 3000000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2020",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2020",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2020",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 3100,
+              dotSize: 2
+            }),
+          maxScale: 600001,
+          minScale: 2000000
+        }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2020",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2020",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2020",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 275,
+              dotSize: 2.5
+            }),
+          maxScale: 300001,
+          minScale: 600000
+        }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2020",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2020",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2020",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 200,
+              dotSize: 2.5
+            }),
+          maxScale: 250001,
+          minScale: 300000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2020",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2020",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2020",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 150,
+              dotSize: 3.5
+            }),
+          maxScale: 100001,
+          minScale: 250000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2020",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2020",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2020",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 75,
+              dotSize: 3.5
+            }),
+          maxScale: 50001,
+          minScale: 100000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2020",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2020",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2020",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 50,
+              dotSize: 4
+            }),
+          maxScale: 30001,
+          minScale: 50000
+          }, {
+            renderer: new DotDensityRenderer({
+              fields: [{
+                name: "hi_gw_2020",
+                color: new Color("#3a917e")
+              },{
+                name: "nm_gw_2020",
+                color: new Color("#95bf9a")
+              },{
+                name: "Dcl_2020",
+                color: new Color("#b23e48")
+              }],
+			  dotShape : "circle",
+              dotValue: 30,
+              dotSize: 4
+            }),
+          maxScale: 18001,
+          minScale: 30000
+          }]
+        });
+        
+		projlayer.setRenderer(projrenderer);
+        
+        map.addLayers([actuallayer, projlayer]);
+		
+        map.on("layers-add-result", function(e) {
+          var actual = e.layers[0].layer;
+          var proj = e.layers[1].layer;
+          var legend = new Legend({
+            map: map, 
+            layerInfos: [{ 
+              layer: actual,
+              title: "Actual Population Growth"
+            },
+			{ 
+              layer: proj,
+              title: "Projected Population Growth"
+            }]
+          }, "legend");
+          legend.startup();
+		  
+		var myWidget = new LayerList({
+			map : map,
+           layers: [
+                {layer: basemap,  
+                visbility: true,
+				id : "Basemap"
+                },  
+                {layer: actuallayer,  
+                visbility: true,
+				name : "Actual Layer"
+                },  
+                {layer: projlayer,  
+                visbility: false,
+				name : "project Layer"
+                }
+           ]},"layerList");
+        myWidget.startup();
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="info">
+      <div id="legend"></div></br>
+      <div><strong>Layers</strong></div>
+	  <div id="layerListPane" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'right'">
+		<div id="layerList"></div>
+		</div></br>
+  </body>
+</html>  
